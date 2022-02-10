@@ -1,9 +1,4 @@
-# shellcheck shell=sh
-# shellcheck disable=SC2039,3043
 
-# author:       Li Junhao           l@x-cmd.com
-
-x log init docker
 _docker_xrc(){
     local i
     for i in "$@"; do

@@ -5,6 +5,8 @@
 
 x log init Docker
 
+xrc docker/lib/hub
+
 ___x_cmd_docker_intercept(){
     local i
     for i in "$@"; do
