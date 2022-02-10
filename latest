@@ -1,97 +1,35 @@
-# shellcheck shell=sh
+# shellcheck shell=sh   # xrc
 # shellcheck disable=SC2039,3043
 
 # author:       Li Junhao           l@x-cmd.com
 
-x log init docker
-_docker_xrc(){
+x log init Docker
+
+___x_cmd_docker_intercept(){
     local i
     for i in "$@"; do
-    # xrc "docker/lib/$i"
-    . "lib/$i"
+        case "$i" in
+            -*)     ;;
+            hub)    
+                ___x_cmd_docker_hub "$@";
+                break ;;
+            *)
+                return ;;
+        esac
     done
-}
-_docker_xrc utils
-
-docker_login(){
-    param:scope    "docker/$O"
-    param:dsl       '
-options:
-    --username              "The username of the Docker Hub account to authenticate with"                 <>
-    --password              "The password or personal access token (PAT) of the Docker Hub account to authenticate with"      <>
-'
-    param:run
-    ___docker_post_json "/v2/users/login" username password
+    ___x_cmd_docker_intercept_res=1
 }
 
-docker_token(){
-    param:scope     "docker/$O"
-    param:dsl       '
-subcommands:
-    ls          "Get access tokens "
-    create      "Create a personal access token"
-    update      "get user email"
-    info        "List all issues"
-    del         "key management"
-'
-    param:run
-    if [ -z "$PARAM_SUBCMD" ]; then
-        echo "Command Not Found. Show help." >&2
-        return 0
+___x_cmd_docker(){
+    local ___x_cmd_docker_intercept_res=
+    ___x_cmd_docker_intercept "$@"
+    local code=$?
+    if [ -n "$___x_cmd_docker_intercept_res" ]; then
+        return "$code"
     fi
 
-    "docker_token_${PARAM_SUBCMD}" "$@"
+    command docker "$@"
 }
 
-docker_token_create(){
-    param:scope    "docker/$O"
-    param:dsl      '
-type: 
-    repo = "admin" "write" "read" "public_read"
-options:
-    --label          "Friendly name for you to identify the token"                 <>
-    --repo           "permission"      <>
-'
-    param:run
-    ___docker_post_json "/v2/access-tokens" username scopes="[repo=$repo]"
-}
+xrc setmain ___x_cmd_docker
 
-docker_token_ls(){
-    param:scope    "docker/$O"
-    param:dsl       '
-options:
-    --page             "page"          <>=1
-    --per_page         "per_page"      <>=10
-'
-    param:run
-    ___docker_post_json "/v2/users/login" username password
-}
-
-docker_login(){
-    param:scope    "docker/$O"
-    param:dsl       '
-options:
-    --username              "The username of the Docker Hub account to authenticate with"                 <>
-    --password              "The password or personal access token (PAT) of the Docker Hub account to authenticate with"      <>
-'
-    param:run
-    ___docker_post_json "/v2/users/login" username password
-}
-
-docker_make() {
-    param:void
-    local O_ORIGINAL=${1:?Provide client name by O environment}
-
-    local O="_x_cmd_x_bash_docker_$O_ORIGINAL"
-    http "@$O" make  'https://hub.docker.com'
-    http "@$O_ORIGINAL" header type "application/json;charset=utf-8"
-    # O=$O_ORIGINAL docker_config_load >/dev/null
-    # if [ $? -eq 0 ] && [ -n "$(O="$O_ORIGINAL" docker_token)" ]; then
-    #     O="$O_ORIGINAL" docker_current_owner
-    # else
-    #     docker_log info "token is null"
-    # fi
-}
-if [ -z "$DO_NOT_INIT_DOCKER_DEFAULT" ]; then
-    docker_make "DOCKET_DEFAULT" && DO_NOT_INIT_DOCKER_DEFAULT="true"
-fi
