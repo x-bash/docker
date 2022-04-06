@@ -11,6 +11,12 @@ ___x_cmd_docker_intercept(){
     for i in "$@"; do
         case "$i" in
             -*)     ;;
+            xrun)
+                
+                    ;;
+            xec)
+                
+                    ;;
             hub)    
                 ___x_cmd_docker_hub "$@";
                 break ;;

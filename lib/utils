@@ -1,59 +1,56 @@
-# shellcheck shell=sh
-# shellcheck disable=SC2039,3043
+# shellcheck shell=sh   disable=SC2039,3043
 
-############################
 # Section 2: Wrapping std/http module with object naming changing
-############################
-___docker_resp_header() {
+___x_cmd_docker_resp_header() {
     http "@_x_cmd_x_bash_docker_${O:-DOCKET_DEFAULT}" resp header "$@"
 }
 
 # TODO: Not supported yet
-___docker_resp_body() {
+___x_cmd_docker_resp_body() {
     http "@_x_cmd_x_bash_docker_${O:-DOCKET_DEFAULT}" resp body "$@"
 }
 
-___docker_get() {
+___x_cmd_docker_get() {
     http "@_x_cmd_x_bash_docker_${O:-DOCKET_DEFAULT}" get "$@"
 }
 
-___docker_get_multi() {
+___x_cmd_docker_get_multi() {
     if [ -n "$page" ] || [ -n "$per_page" ]; then
-        ___docker_get "$@" page per_page
+        ___x_cmd_docker_get "$@" page per_page
         return
     fi
     local i=1 
     local total_page=100000
     while [ "$i" -le "$total_page" ]; do
-        ___docker_get "$@" page="$i" per_page=100
-        total_page="$(___docker_resp_header "total_page")"
+        ___x_cmd_docker_get "$@" page="$i" per_page=100
+        total_page="$(___x_cmd_docker_resp_header "total_page")"
         [ -z "$total_page" ] && return
         # echo "total_page:$total_page" >&2
         i=$((i+1))
     done
 }
 
-___docker_post_json() {
+___x_cmd_docker_post_json() {
     http "@_x_cmd_x_bash_docker_${O:-DOCKET_DEFAULT}" post  json "$@"
 }
 
-___docker_put_json() {
+___x_cmd_docker_put_json() {
     http "@_x_cmd_x_bash_docker_${O:-DOCKET_DEFAULT}" put json "$@"
 }
 
-___docker_patch_json() {
+___x_cmd_docker_patch_json() {
     http "@_x_cmd_x_bash_docker_${O:-DOCKET_DEFAULT}" patch json "$@"
 }
 
-___docker_delete() {
+___x_cmd_docker_delete() {
     http "@_x_cmd_x_bash_docker_${O:-DOCKET_DEFAULT}" delete "$@"
 }
 
-___docker_dict_get() {
+___x_cmd_docker_dict_get() {
     http "@_x_cmd_x_bash_docker_${O:-DOCKET_DEFAULT}" dict "$@"
 }
 
-___docker_dict_put() {
+___x_cmd_docker_dict_put() {
     http "@_x_cmd_x_bash_docker_${O:-DOCKET_DEFAULT}" dict "$@"
 }
 
@@ -64,10 +61,10 @@ ___docker_dict_put() {
 
 alias gt_param_init_owner_repo='
     local owner_repo
-    ___docker_param_normalize_repo  || return
+    ___x_cmd_docker_param_normalize_repo  || return
 '
 
-___docker_param_normalize_repo() {
+___x_cmd_docker_param_normalize_repo() {
     local op="$repo"
     [ -z "$op" ] && op="$1"
     case "$op" in
@@ -104,7 +101,7 @@ ___docker_param_normalize_repo() {
 
 ### Repo #1
 
-___docker_parse_owner_repo() {
+___x_cmd_docker_parse_owner_repo() {
     local O="${O:-DOCKET_DEFAULT}"
     if [ -z "$repo" ]; then
         repo="$(gt_current_repo)"
@@ -119,11 +116,11 @@ ___docker_parse_owner_repo() {
     fi
 }
 
-___docker_cache(){
+___x_cmd_docker_cache(){
     ccmd -- eval "$@"
 }
 
-___docker_table() {
+___x_cmd_docker_table() {
     local tmp
     tmp=$1
     shift
